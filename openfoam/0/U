@@ -1,0 +1,17 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (29.8858 -2.6147 0);
+boundaryField
+{
+    inlet       { type fixedValue; value uniform (29.8858 -2.6147 0); }
+    outlet      { type zeroGradient; }
+    top         { type cyclic; }
+    bottom      { type cyclic; }
+    frontAndBack { type empty; }
+}

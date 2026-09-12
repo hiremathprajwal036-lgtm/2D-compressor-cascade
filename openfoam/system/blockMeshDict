@@ -1,0 +1,88 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| blockMeshDict — 2D Compressor Cascade                                       |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      blockMeshDict;
+}
+
+convertToMeters 0.1;
+
+/*
+  Simplified O-mesh topology around a single blade passage.
+  For a true body-fitted mesh you would use snappyHexMesh or ICEM CFD.
+  This dict creates the background structured domain; the blade surface
+  is handled by snappyHexMesh (see snappyHexMeshDict).
+
+  Domain:
+        ┌─────────────────────────────────┐  ← top (periodic)
+        │         INLET  →  OUTLET        │
+        │   [upstream] blade [downstream] │
+        └─────────────────────────────────┘  ← bottom (periodic)
+
+  Pitch (blade-to-blade spacing): 0.0800 m
+  Axial extent: 0.4000 m (1 chord upstream + chord + 2 chords downstream)
+*/
+
+vertices
+(
+    // Bottom-left (inlet, bottom)
+    ( -0.100000  0.000000  0 )   // 0
+    ( 0.300000  0.000000  0 )   // 1
+    ( 0.300000  0.080000  0 )   // 2
+    ( -0.100000  0.080000  0 )   // 3
+    // z = depth (unit span for 2D)
+    ( -0.100000  0.000000  0.0050 )  // 4
+    ( 0.300000  0.000000  0.0050 )  // 5
+    ( 0.300000  0.080000  0.0050 )  // 6
+    ( -0.100000  0.080000  0.0050 )  // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7)
+    (120 60 1)                // cells: axial × pitch × 1 (2D)
+    simpleGrading (1 1 1)
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ((0 4 7 3));
+    }
+    outlet
+    {
+        type patch;
+        faces ((1 2 6 5));
+    }
+    top
+    {
+        type cyclic;
+        neighbourPatch bottom;
+        faces ((3 7 6 2));
+    }
+    bottom
+    {
+        type cyclic;
+        neighbourPatch top;
+        faces ((0 1 5 4));
+    }
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 3 2 1)   // front
+            (4 5 6 7)   // back
+        );
+    }
+);
+
+// NOTE: blade surface is added by snappyHexMesh — see snappyHexMeshDict
+// ************************************************************************* //
