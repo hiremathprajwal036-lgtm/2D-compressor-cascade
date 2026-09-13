@@ -3,8 +3,6 @@ processor*/
 # Large mesh files
 constant/polyMesh/
 # Time directories in CFD results
-results/aoa_*/[0-9]*/
-results/airfoil_test/[0-9]*/
 
 # Logs
 *.log
